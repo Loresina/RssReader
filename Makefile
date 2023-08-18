@@ -9,3 +9,6 @@ build:
 
 lint:
 	npx eslint .
+
+tests:
+	npm tests
