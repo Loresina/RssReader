@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 import { isObject } from 'lodash';
-import i18nextInstance from './index.js';
+// import i18nextInstance from './index.js';
 
 const readingView = (post) => {
   const readingButton = document.querySelector('.modal-footer .btn-primary');
@@ -28,21 +28,20 @@ const closeModal = (body, backdrop) => {
   });
 };
 
-const buttonlView = (post, listHref) => {
+const buttonlView = (post, listHref, i18nextInstance) => {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
   button.setAttribute('data-id', '204');
   button.setAttribute('data-bs-toggle', 'modal');
   button.setAttribute('data-bs-target', '#modal');
-  button.textContent = 'Просмотр';
+  button.textContent = i18nextInstance.t('wathButton');
 
   button.addEventListener('click', (e) => {
     e.preventDefault();
 
     post.touch = true;
 
-    console.log(post);
     const body = document.querySelector('body');
     body.classList.add('modal-open');
     body.setAttribute('data-new-gr-c-s-check-loaded', '8.906.0');
@@ -113,7 +112,7 @@ const feedsView = (state) => {
   feedsContainer.append(feedsColumn);
 };
 
-const postsView = (state) => {
+const postsView = (state, i18nextInstance) => {
   const postsContainer = document.querySelector('.posts');
 
   // фильтровать ссылки с измененными классами,
@@ -141,10 +140,8 @@ const postsView = (state) => {
     const listHref = document.createElement('a');
 
     if (post.touch === true) {
-      console.log('Я отрисовал прочитанную ссылку');
       listHref.classList.add('fw-normal', 'link-secondary');
     } else if (post.touch === false) {
-      console.log('Я отрисовал не прочитанную ссылку');
       listHref.classList.add('fw-bold');
     }
 
@@ -160,7 +157,7 @@ const postsView = (state) => {
       listHref.classList.add('fw-normal', 'link-secondary');
     });
 
-    const button = buttonlView(post, listHref);
+    const button = buttonlView(post, listHref, i18nextInstance);
 
     listLine.append(listHref);
     listLine.append(button);
@@ -174,18 +171,12 @@ const postsView = (state) => {
   postsContainer.append(postsColumn);
 };
 
-const watchedState = (state) => onChange(state, (path, current, previous) => {
-  // console.log(path);
-
-  // if (path === 'inputForm.input') {
-  //   console.log('Проверяем есть ли этот адрес в фидах. Действуем по итогу');
-  // }
-
-  if (path === 'validInput.response') {
+const watchedState = (state, i18nextInstance) => onChange(state, (path, current) => {
+  if (path === 'inputMessage.response') {
     const inputField = document.querySelector('#url-input');
     const message = document.querySelector('.feedback');
 
-    if (isObject(current)) {
+    if (current === true) {
       inputField.classList.remove('is-invalid');
       message.classList.remove('text-danger');
       message.classList.add('text-success');
@@ -199,7 +190,7 @@ const watchedState = (state) => onChange(state, (path, current, previous) => {
   }
 
   if (path === 'contents.posts') {
-    postsView(state);
+    postsView(state, i18nextInstance);
   }
 
   if (path === 'contents.feeds') {

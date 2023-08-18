@@ -2,8 +2,11 @@ export default {
   ru: {
     translation: {
       inputNotValid: 'Ссылка должна быть валидным URL',
-      inputExist: 'Этот URL уже добавлен в список',
+      inputExist: 'RSS уже существует',
       isValid: 'RSS успешно загружен',
+      badParsing: 'Ресурс не содержит валидный RSS',
+      networkError: 'Ошибка сети',
+      wathButton: 'Просмотр',
     },
   },
 };

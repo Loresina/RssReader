@@ -10,7 +10,7 @@ const app = (i18nextInstance) => {
       input: '',
     },
     a: 0,
-    validInput: {
+    inputMessage: {
       response: '',
     },
     contents: {
@@ -19,6 +19,8 @@ const app = (i18nextInstance) => {
       posts: [],
     },
   };
+
+  const myWatchState = (mystate) => watchedState(mystate, i18nextInstance);
 
   const update = () => {
     setTimeout(() => {
@@ -57,10 +59,18 @@ const app = (i18nextInstance) => {
         });
 
         if (updateList.length > 0) {
-          watchedState(state).contents.posts = [...updateList, ...state.contents.posts];
+          myWatchState(state).contents.posts = [...updateList, ...state.contents.posts];
         }
-        // console.log(updateList);
-      });
+      })
+        .catch((e) => {
+          if (e.name === 'AxiosError') {
+            myWatchState(state).inputMessage.response = i18nextInstance.t('networkError');
+          } else if (e.message === 'ParsingError') {
+            myWatchState(state).inputMessage.response = i18nextInstance.t('badParsing');
+          } else {
+            console.log(e.message);
+          }
+        });
 
       update();
     }, 5000);
@@ -74,20 +84,15 @@ const app = (i18nextInstance) => {
     const formData = new FormData(e.target);
     const inputValue = formData.get('url');
 
-    watchedState(state).inputForm.input = inputValue;
-
-    // validate(state.inputForm, i18nextInstance)
-    //   .then((goodValidation) => console.log('ХОРОШАЯ ВАЛИДАЦИЯ', goodValidation))
-    //   .catch((badValidation) => console.log('ПЛОХАЯ ВАЛИДАЦИЯ', badValidation));
+    myWatchState(state).inputForm.input = inputValue.trim();
 
     validate(state.inputForm, i18nextInstance, state.contents.urls)
-      .then((goodValidation) => {
-        watchedState(state).validInput.response = goodValidation;
-        state.contents.urls.push(state.inputForm.input);
-        return getRSS(state.inputForm.input);
-      })
+      .then(() => getRSS(state.inputForm.input))
       .then((contents) => parsingRSS(contents))
       .then((doc) => {
+        myWatchState(state).inputMessage.response = true;
+        state.contents.urls.push(state.inputForm.input);
+
         const items = doc.querySelectorAll('item');
         const feedName = doc.querySelector('channel title').textContent;
         const feedDescription = doc.querySelector('channel description').textContent;
@@ -109,11 +114,21 @@ const app = (i18nextInstance) => {
           });
         });
 
-        watchedState(state).contents.feeds.push(newFeed);
-        watchedState(state).contents.posts = [...state.contents.posts, ...posts];
+        myWatchState(state).contents.feeds.push(newFeed);
+        myWatchState(state).contents.posts = [...state.contents.posts, ...posts];
       })
-      .catch((badValidation) => {
-        watchedState(state).validInput.response = badValidation.message;
+      .catch((error) => {
+        if (error.name === 'ValidationError') {
+          myWatchState(state).inputMessage.response = error.message;
+        } else if (error.name === 'AxiosError') {
+          console.log(state.inputForm.input);
+          myWatchState(state).inputMessage.response = i18nextInstance.t('networkError');
+        } else if (error.message === 'ParsingError') {
+          console.log(state.inputForm.input);
+          myWatchState(state).inputMessage.response = i18nextInstance.t('badParsing');
+        } else {
+          console.log(error.message);
+        }
       });
   });
 };

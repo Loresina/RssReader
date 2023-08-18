@@ -11,4 +11,4 @@ i18nextInstance.init({
 })
   .then(() => app(i18nextInstance));
 
-export default i18nextInstance;
+// export default i18nextInstance;

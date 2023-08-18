@@ -4,7 +4,10 @@
 const parsingRSS = (contents) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(contents, 'application/xml');
-  // .catch((error) => )
+
+  if (doc.querySelector('parsererror')) {
+    throw new Error('ParsingError');
+  }
 
   return doc;
 };
