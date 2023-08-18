@@ -1,5 +1,5 @@
 import onChange from 'on-change';
-import { isObject } from 'lodash';
+// import { isObject } from 'lodash';
 // import i18nextInstance from './index.js';
 
 const readingView = (post) => {
