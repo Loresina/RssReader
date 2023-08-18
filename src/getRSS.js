@@ -8,9 +8,14 @@ const getRSS = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCach
     throw new Error(`Response to ${url} was not ok.`);
   })
   .then((resp) => {
-    console.log(resp.data.contents);
+    // console.log(resp.data.contents);
     const { contents } = resp.data;
     return contents;
+  })
+  .catch(() => {
+    const message = document.querySelector('.feedback');
+    message.textContent = 'привет, я ошибка';
+    throw new Error();
   });
 
 export default getRSS;

@@ -1,7 +1,9 @@
 export default {
   ru: {
     translation: {
-      inputError: 'Ссылка должна быть валидным URL',
+      inputNotValid: 'Ссылка должна быть валидным URL',
+      inputExist: 'Этот URL уже добавлен в список',
+      isValid: 'RSS успешно загружен',
     },
   },
 };
