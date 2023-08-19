@@ -26,10 +26,8 @@ const app = (i18nextInstance) => {
     if (error.name === 'ValidationError') {
       myWatchState(state).inputError = error.message;
     } else if (error.name === 'AxiosError') {
-      console.log(state.inputForm.input);
       myWatchState(state).inputError = i18nextInstance.t('networkError');
     } else if (error.name === 'ParsingError') {
-      console.log(state.inputForm.input);
       myWatchState(state).inputError = i18nextInstance.t('badParsing');
     } else {
       console.log(error);
@@ -98,7 +96,6 @@ const app = (i18nextInstance) => {
       .then(() => getRSS(state.inputForm.input))
       .then((contents) => parsingRSS(contents))
       .then((doc) => {
-        myWatchState(state).inputError = false;
         state.contents.urls.push(state.inputForm.input);
 
         const items = doc.querySelectorAll('item');
@@ -122,6 +119,7 @@ const app = (i18nextInstance) => {
           });
         });
 
+        myWatchState(state).inputError = false;
         myWatchState(state).contents.feeds.push(newFeed);
         myWatchState(state).contents.posts = [...state.contents.posts, ...posts];
       })

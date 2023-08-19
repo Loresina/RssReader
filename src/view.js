@@ -177,6 +177,8 @@ const updateFeedback = (current, i18nextInstance) => {
   const message = document.querySelector('.feedback');
 
   if (!current) {
+    inputField.value = '';
+    inputField.focus();
     inputField.classList.remove('is-invalid');
     message.classList.remove('text-danger');
     message.classList.add('text-success');
