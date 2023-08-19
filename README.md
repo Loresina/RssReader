@@ -1,3 +1,21 @@
+### Description
+
+**Rss Reader** It is a service for aggregating RSS feeds.
+Use this application to read news feeds and other resources with rss.
+* you can add an unlimited number of RSS feeds  
+* it updates itself and adds new posts to the general stream
+
+### Installation
+
+Use Node.js v16.16.0 and greater is required.    
+Install **Rss Reader** by command in terminal.  
+
+```
+  $ make install
+  $ make build
+  $ make develop
+``` 
+
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/Loresina/frontend-bootcamp-project-11/workflows/hexlet-check/badge.svg)](https://github.com/Loresina/frontend-bootcamp-project-11/actions)
 

@@ -4,6 +4,79 @@ import validate from './validation.js';
 import getRSS from './getRSS.js';
 import parsingRSS from './parsingRSS.js';
 
+const myWatchState = (mystate, i18nextInstance) => watchedState(mystate, i18nextInstance);
+
+const processErrors = (error, state, i18nextInstance) => {
+  if (error.name === 'ValidationError') {
+    myWatchState(state, i18nextInstance).inputError = error.message;
+  } else if (error.name === 'AxiosError') {
+    myWatchState(state, i18nextInstance).inputError = i18nextInstance.t('networkError');
+  } else if (error.name === 'ParsingError') {
+    myWatchState(state, i18nextInstance).inputError = i18nextInstance.t('badParsing');
+  } else {
+    console.log(error);
+  }
+};
+
+const checkNewPosts = (state) => {
+  const existingUrls = state.contents.urls;
+  console.log('Привет', existingUrls);
+
+  const allNewPosts = existingUrls.map((url) => getRSS(url)
+    .then((contents) => parsingRSS(contents))
+    .then((doc) => {
+      const items = doc.querySelectorAll('item');
+
+      const actualFeed = state.contents.feeds.filter((feed) => feed.feedLink === url);
+      const actualId = actualFeed[0].feedID;
+
+      const freshData = [];
+
+      items.forEach((item) => {
+        const name = item.querySelector('title').textContent;
+        const link = item.querySelector('link').textContent;
+        const description = item.querySelector('description').textContent;
+        freshData.push({
+          name, description, actualId, link, touch: false,
+        });
+      });
+
+      const oldData = state.contents.posts.filter((post) => post.feedID === actualId);
+
+      const newPosts = freshData.filter((freshItem) => oldData
+        .every((oldItem) => oldItem.name !== freshItem.name));
+
+      return newPosts;
+    }));
+  return allNewPosts;
+};
+
+const update = (state, i18nextInstance) => {
+  setTimeout(() => {
+    const allNewPosts = checkNewPosts(state);
+
+    console.log('Првиет 3', allNewPosts);
+
+    Promise.all(allNewPosts).then((values) => {
+      let updateList = [];
+      values.map((value) => {
+        updateList = [...updateList, ...value];
+        return updateList;
+      });
+
+      if (updateList.length > 0) {
+        myWatchState(state, i18nextInstance)
+          .contents.posts = [...updateList, ...state.contents.posts];
+      }
+    })
+      .catch((e) => {
+        processErrors(e, state, i18nextInstance);
+      });
+
+    update(state, i18nextInstance);
+  }, 5000);
+};
+
 const app = (i18nextInstance) => {
   const state = {
     inputForm: {
@@ -20,69 +93,7 @@ const app = (i18nextInstance) => {
     },
   };
 
-  const myWatchState = (mystate) => watchedState(mystate, i18nextInstance);
-
-  const processErrors = (error) => {
-    if (error.name === 'ValidationError') {
-      myWatchState(state).inputError = error.message;
-    } else if (error.name === 'AxiosError') {
-      myWatchState(state).inputError = i18nextInstance.t('networkError');
-    } else if (error.name === 'ParsingError') {
-      myWatchState(state).inputError = i18nextInstance.t('badParsing');
-    } else {
-      console.log(error);
-    }
-  };
-
-  const update = () => {
-    setTimeout(() => {
-      const existingUrls = state.contents.urls;
-
-      const allNewPosts = existingUrls.map((url) => getRSS(url)
-        .then((contents) => parsingRSS(contents))
-        .then((doc) => {
-          const items = doc.querySelectorAll('item');
-
-          const actualFeed = state.contents.feeds.filter((feed) => feed.feedLink === url);
-          const actualId = actualFeed[0].feedID;
-
-          const freshData = [];
-          items.forEach((item) => {
-            const name = item.querySelector('title').textContent;
-            const link = item.querySelector('link').textContent;
-            const description = item.querySelector('description').textContent;
-            freshData.push({
-              name, description, actualId, link,
-            });
-          });
-
-          const oldData = state.contents.posts.filter((post) => post.feedID === actualId);
-
-          const newPosts = freshData.filter((freshItem) => oldData
-            .every((oldItem) => oldItem.name !== freshItem.name));
-          return newPosts;
-        }));
-
-      Promise.all(allNewPosts).then((values) => {
-        let updateList = [];
-        values.map((value) => {
-          updateList = [...updateList, ...value];
-          return updateList;
-        });
-
-        if (updateList.length > 0) {
-          myWatchState(state).contents.posts = [...updateList, ...state.contents.posts];
-        }
-      })
-        .catch((e) => {
-          processErrors(e);
-        });
-
-      update();
-    }, 5000);
-  };
-
-  update();
+  update(state, i18nextInstance);
 
   const inputForm = document.querySelector('.rss-form');
   inputForm.addEventListener('submit', (e) => {
@@ -90,7 +101,7 @@ const app = (i18nextInstance) => {
     const formData = new FormData(e.target);
     const inputValue = formData.get('url');
 
-    myWatchState(state).inputForm.input = inputValue.trim();
+    myWatchState(state, i18nextInstance).inputForm.input = inputValue.trim();
 
     validate(state.inputForm, i18nextInstance, state.contents.urls)
       .then(() => getRSS(state.inputForm.input))
@@ -104,11 +115,11 @@ const app = (i18nextInstance) => {
         const feedLink = state.inputForm.input;
         const feedID = uniqueId('feed');
 
-        const posts = [];
         const newFeed = {
           feedName, feedID, feedDescription, feedLink,
         };
 
+        const posts = [];
         items.forEach((item) => {
           const name = item.querySelector('title').textContent;
           const link = item.querySelector('link').textContent;
@@ -119,12 +130,12 @@ const app = (i18nextInstance) => {
           });
         });
 
-        myWatchState(state).inputError = false;
-        myWatchState(state).contents.feeds.push(newFeed);
-        myWatchState(state).contents.posts = [...state.contents.posts, ...posts];
+        myWatchState(state, i18nextInstance).inputError = false;
+        myWatchState(state, i18nextInstance).contents.feeds.push(newFeed);
+        myWatchState(state, i18nextInstance).contents.posts = [...state.contents.posts, ...posts];
       })
       .catch((error) => {
-        processErrors(error);
+        processErrors(error, state, i18nextInstance);
       });
   });
 };

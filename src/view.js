@@ -192,16 +192,21 @@ const updateFeedback = (current, i18nextInstance) => {
 };
 
 const watchedState = (state, i18nextInstance) => onChange(state, (path, current) => {
-  if (path === 'inputError') {
-    updateFeedback(current, i18nextInstance);
-  }
+  switch (path) {
+    case 'inputError':
+      updateFeedback(current, i18nextInstance);
+      break;
 
-  if (path === 'contents.posts') {
-    updatePosts(state, i18nextInstance);
-  }
+    case 'contents.posts':
+      updatePosts(state, i18nextInstance);
+      break;
 
-  if (path === 'contents.feeds') {
-    updateFeeds(state);
+    case 'contents.feeds':
+      updateFeeds(state);
+      break;
+
+    default:
+      break;
   }
 });
 
