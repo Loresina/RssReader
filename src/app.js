@@ -18,29 +18,32 @@ const processErrors = (error, state, i18nextInstance) => {
   }
 };
 
+const getPosts = (doc, actualId) => {
+  const items = doc.querySelectorAll('item');
+  const posts = [];
+
+  items.forEach((item) => {
+    const name = item.querySelector('title').textContent;
+    const link = item.querySelector('link').textContent;
+    const description = item.querySelector('description').textContent;
+    posts.push({
+      name, description, actualId, link, touch: false,
+    });
+  });
+
+  return posts;
+};
+
 const checkNewPosts = (state) => {
   const existingUrls = state.contents.urls;
-  console.log('Привет', existingUrls);
 
   const allNewPosts = existingUrls.map((url) => getRSS(url)
     .then((contents) => parsingRSS(contents))
     .then((doc) => {
-      const items = doc.querySelectorAll('item');
-
       const actualFeed = state.contents.feeds.filter((feed) => feed.feedLink === url);
       const actualId = actualFeed[0].feedID;
 
-      const freshData = [];
-
-      items.forEach((item) => {
-        const name = item.querySelector('title').textContent;
-        const link = item.querySelector('link').textContent;
-        const description = item.querySelector('description').textContent;
-        freshData.push({
-          name, description, actualId, link, touch: false,
-        });
-      });
-
+      const freshData = getPosts(doc, actualId);
       const oldData = state.contents.posts.filter((post) => post.feedID === actualId);
 
       const newPosts = freshData.filter((freshItem) => oldData
@@ -54,8 +57,6 @@ const checkNewPosts = (state) => {
 const update = (state, i18nextInstance) => {
   setTimeout(() => {
     const allNewPosts = checkNewPosts(state);
-
-    console.log('Првиет 3', allNewPosts);
 
     Promise.all(allNewPosts).then((values) => {
       let updateList = [];
@@ -109,7 +110,6 @@ const app = (i18nextInstance) => {
       .then((doc) => {
         state.contents.urls.push(state.inputForm.input);
 
-        const items = doc.querySelectorAll('item');
         const feedName = doc.querySelector('channel title').textContent;
         const feedDescription = doc.querySelector('channel description').textContent;
         const feedLink = state.inputForm.input;
@@ -119,16 +119,7 @@ const app = (i18nextInstance) => {
           feedName, feedID, feedDescription, feedLink,
         };
 
-        const posts = [];
-        items.forEach((item) => {
-          const name = item.querySelector('title').textContent;
-          const link = item.querySelector('link').textContent;
-          const description = item.querySelector('description').textContent;
-
-          posts.push({
-            name, description, feedID, link, touch: false,
-          });
-        });
+        const posts = getPosts(doc, feedID);
 
         myWatchState(state, i18nextInstance).inputError = false;
         myWatchState(state, i18nextInstance).contents.feeds.push(newFeed);
