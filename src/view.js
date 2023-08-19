@@ -1,6 +1,4 @@
 import onChange from 'on-change';
-// import { isObject } from 'lodash';
-// import i18nextInstance from './index.js';
 
 const readingView = (post) => {
   const readingButton = document.querySelector('.modal-footer .btn-primary');
@@ -28,7 +26,7 @@ const closeModal = (body, backdrop) => {
   });
 };
 
-const buttonlView = (post, listHref, i18nextInstance) => {
+const addViewButton = (post, listHref, i18nextInstance) => {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
@@ -39,7 +37,6 @@ const buttonlView = (post, listHref, i18nextInstance) => {
 
   button.addEventListener('click', (e) => {
     e.preventDefault();
-
     post.touch = true;
 
     const body = document.querySelector('body');
@@ -71,7 +68,26 @@ const buttonlView = (post, listHref, i18nextInstance) => {
   return button;
 };
 
-const feedsView = (state) => {
+const addFeeds = (feeds, feedsList) => {
+  feeds.forEach((feed) => {
+    const listLine = document.createElement('li');
+    listLine.classList.add('list-group-item', 'border-0', 'border-end-0');
+
+    const name = document.createElement('h3');
+    name.classList.add('h6', 'm-0');
+    name.textContent = feed.feedName;
+
+    const description = document.createElement('p');
+    description.classList.add('m-0', 'small', 'text-black-50');
+    description.textContent = feed.feedDescription;
+
+    listLine.append(name);
+    listLine.append(description);
+    feedsList.append(listLine);
+  });
+};
+
+const updateFeeds = (state) => {
   const feedsContainer = document.querySelector('.feeds');
   feedsContainer.textContent = '';
 
@@ -88,22 +104,7 @@ const feedsView = (state) => {
   const feedsList = document.createElement('ul');
   feedsList.classList.add('list-group', 'border-0', 'rounder-0');
 
-  state.contents.feeds.forEach((feed) => {
-    const listLine = document.createElement('li');
-    listLine.classList.add('list-group-item', 'border-0', 'border-end-0');
-
-    const name = document.createElement('h3');
-    name.classList.add('h6', 'm-0');
-    name.textContent = feed.feedName;
-
-    const description = document.createElement('p');
-    description.classList.add('m-0', 'small', 'text-black-50');
-    description.textContent = feed.feedDescription;
-
-    listLine.append(name);
-    listLine.append(description);
-    feedsList.append(listLine);
-  });
+  addFeeds(state.contents.feeds, feedsList);
 
   feedsTitleDiv.append(feedsTitle);
   feedsColumn.append(feedsTitleDiv);
@@ -112,28 +113,8 @@ const feedsView = (state) => {
   feedsContainer.append(feedsColumn);
 };
 
-const postsView = (state, i18nextInstance) => {
-  const postsContainer = document.querySelector('.posts');
-
-  // фильтровать ссылки с измененными классами,
-  // скадывать в переменную, и отрисовывыть с фильтром этого списка
-
-  postsContainer.textContent = '';
-
-  const postsColumn = document.createElement('div');
-  postsColumn.classList.add('card', 'border-0');
-
-  const postsTitleDiv = document.createElement('div');
-  postsTitleDiv.classList.add('card-body');
-
-  const postsTitle = document.createElement('h2');
-  postsTitle.classList.add('card-title', 'h4');
-  postsTitle.textContent = 'Посты';
-
-  const postsList = document.createElement('ul');
-  postsList.classList.add('list-group', 'border-0', 'rounder-0');
-
-  state.contents.posts.forEach((post) => {
+const addPosts = (posts, postsList, i18nextInstance) => {
+  posts.forEach((post) => {
     const listLine = document.createElement('li');
     listLine.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
@@ -157,12 +138,32 @@ const postsView = (state, i18nextInstance) => {
       listHref.classList.add('fw-normal', 'link-secondary');
     });
 
-    const button = buttonlView(post, listHref, i18nextInstance);
+    const viewButton = addViewButton(post, listHref, i18nextInstance);
 
     listLine.append(listHref);
-    listLine.append(button);
+    listLine.append(viewButton);
     postsList.append(listLine);
   });
+};
+
+const updatePosts = (state, i18nextInstance) => {
+  const postsContainer = document.querySelector('.posts');
+  postsContainer.textContent = '';
+
+  const postsColumn = document.createElement('div');
+  postsColumn.classList.add('card', 'border-0');
+
+  const postsTitleDiv = document.createElement('div');
+  postsTitleDiv.classList.add('card-body');
+
+  const postsTitle = document.createElement('h2');
+  postsTitle.classList.add('card-title', 'h4');
+  postsTitle.textContent = 'Посты';
+
+  const postsList = document.createElement('ul');
+  postsList.classList.add('list-group', 'border-0', 'rounder-0');
+
+  addPosts(state.contents.posts, postsList, i18nextInstance);
 
   postsTitleDiv.append(postsTitle);
   postsColumn.append(postsTitleDiv);
@@ -171,30 +172,34 @@ const postsView = (state, i18nextInstance) => {
   postsContainer.append(postsColumn);
 };
 
-const watchedState = (state, i18nextInstance) => onChange(state, (path, current) => {
-  if (path === 'inputMessage.response') {
-    const inputField = document.querySelector('#url-input');
-    const message = document.querySelector('.feedback');
+const updateFeedback = (current, i18nextInstance) => {
+  const inputField = document.querySelector('#url-input');
+  const message = document.querySelector('.feedback');
 
-    if (current === true) {
-      inputField.classList.remove('is-invalid');
-      message.classList.remove('text-danger');
-      message.classList.add('text-success');
-      message.textContent = i18nextInstance.t('isValid');
-    } else {
-      message.classList.remove('text-success');
-      message.classList.add('text-danger');
-      inputField.classList.add('is-invalid');
-      message.textContent = current;
-    }
+  if (!current) {
+    inputField.classList.remove('is-invalid');
+    message.classList.remove('text-danger');
+    message.classList.add('text-success');
+    message.textContent = i18nextInstance.t('isValid');
+  } else {
+    message.classList.remove('text-success');
+    message.classList.add('text-danger');
+    inputField.classList.add('is-invalid');
+    message.textContent = current;
+  }
+};
+
+const watchedState = (state, i18nextInstance) => onChange(state, (path, current) => {
+  if (path === 'inputError') {
+    updateFeedback(current, i18nextInstance);
   }
 
   if (path === 'contents.posts') {
-    postsView(state, i18nextInstance);
+    updatePosts(state, i18nextInstance);
   }
 
   if (path === 'contents.feeds') {
-    feedsView(state);
+    updateFeeds(state);
   }
 });
 

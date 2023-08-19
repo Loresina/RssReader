@@ -22,6 +22,20 @@ const app = (i18nextInstance) => {
 
   const myWatchState = (mystate) => watchedState(mystate, i18nextInstance);
 
+  const processErrors = (error) => {
+    if (error.name === 'ValidationError') {
+      myWatchState(state).inputError = error.message;
+    } else if (error.name === 'AxiosError') {
+      console.log(state.inputForm.input);
+      myWatchState(state).inputError = i18nextInstance.t('networkError');
+    } else if (error.name === 'ParsingError') {
+      console.log(state.inputForm.input);
+      myWatchState(state).inputError = i18nextInstance.t('badParsing');
+    } else {
+      console.log(error);
+    }
+  };
+
   const update = () => {
     setTimeout(() => {
       const existingUrls = state.contents.urls;
@@ -63,13 +77,7 @@ const app = (i18nextInstance) => {
         }
       })
         .catch((e) => {
-          if (e.name === 'AxiosError') {
-            myWatchState(state).inputMessage.response = i18nextInstance.t('networkError');
-          } else if (e.message === 'ParsingError') {
-            myWatchState(state).inputMessage.response = i18nextInstance.t('badParsing');
-          } else {
-            console.log(e.message);
-          }
+          processErrors(e);
         });
 
       update();
@@ -90,7 +98,7 @@ const app = (i18nextInstance) => {
       .then(() => getRSS(state.inputForm.input))
       .then((contents) => parsingRSS(contents))
       .then((doc) => {
-        myWatchState(state).inputMessage.response = true;
+        myWatchState(state).inputError = false;
         state.contents.urls.push(state.inputForm.input);
 
         const items = doc.querySelectorAll('item');
@@ -118,17 +126,7 @@ const app = (i18nextInstance) => {
         myWatchState(state).contents.posts = [...state.contents.posts, ...posts];
       })
       .catch((error) => {
-        if (error.name === 'ValidationError') {
-          myWatchState(state).inputMessage.response = error.message;
-        } else if (error.name === 'AxiosError') {
-          console.log(state.inputForm.input);
-          myWatchState(state).inputMessage.response = i18nextInstance.t('networkError');
-        } else if (error.message === 'ParsingError') {
-          console.log(state.inputForm.input);
-          myWatchState(state).inputMessage.response = i18nextInstance.t('badParsing');
-        } else {
-          console.log(error.message);
-        }
+        processErrors(error);
       });
   });
 };

@@ -10,5 +10,3 @@ i18nextInstance.init({
   resources,
 })
   .then(() => app(i18nextInstance));
-
-// export default i18nextInstance;
