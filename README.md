@@ -1,6 +1,6 @@
 ### Description
 
-**Rss Reader** It is a service for aggregating RSS feeds.
+**Rss Reader** it is a service for aggregating RSS feeds.
 Use this application to read news feeds and other resources with rss.
 * you can add an unlimited number of RSS feeds  
 * it updates itself and adds new posts to the general stream
@@ -8,7 +8,7 @@ Use this application to read news feeds and other resources with rss.
 ### Installation
 
 Use Node.js v16.16.0 and greater is required.    
-Install **Rss Reader** by command in terminal.  
+Install **Rss Reader** by commands in terminal.  
 
 ```
   $ make install
