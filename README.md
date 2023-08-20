@@ -1,6 +1,6 @@
 ### Description
 
-**Rss Reader** it is a service for aggregating RSS feeds.
+**Rss Reader** is a service for aggregating RSS feeds.
 Use this application to read news feeds and other resources with rss.
 * you can add an unlimited number of RSS feeds  
 * it updates itself and adds new posts to the general stream
