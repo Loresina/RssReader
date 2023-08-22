@@ -5,6 +5,11 @@ Use this application to read news feeds and other resources with rss.
 * you can add an unlimited number of RSS feeds  
 * it updates itself and adds new posts to the general stream
 
+### How you can use it
+
+<code>You can follow the link and try to use [https://frontend-bootcamp-project-11-five.vercel.app/](Rss Reader)
+</code>
+
 ### Installation
 
 Use Node.js v16.16.0 and greater is required.    
