@@ -7,7 +7,7 @@ Use this application to read news feeds and other resources with rss.
 
 ### How you can use it
 
-<code>You can follow the link and try to use [https://frontend-bootcamp-project-11-five.vercel.app/](Rss Reader)
+<code>You can follow the link and try to use [Rss Reader](https://frontend-bootcamp-project-11-five.vercel.app/)
 </code>
 
 ### Installation
