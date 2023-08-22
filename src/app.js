@@ -1,4 +1,4 @@
-import uniqueId from 'lodash/uniqueId.js';
+import uniqueId from 'lodash';
 import watchedState from './view.js';
 import validate from './validation.js';
 import getRSS from './getRSS.js';

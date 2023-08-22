@@ -5,9 +5,6 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-// import WorkboxWebpackPlugin from 'workbox-webpack-plugin';
-
-// const isProduction = process.env.NODE_ENV == 'production';
 
 const config = {
   entry: './src/index.js',

@@ -142,7 +142,7 @@ const addPosts = (posts, postsList, i18nextInstance) => {
 
     listLine.append(listHref);
     listLine.append(viewButton);
-    postsList.append(listLine);
+    postsList.prepend(listLine);
   });
 };
 
