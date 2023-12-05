@@ -11,7 +11,9 @@ Use this application to read news feeds and other resources with rss.
 </code>
 
 ### Video demonstration
-Uploading bandicam 2023-12-05 10-45-06-070.mp4…
+https://github.com/Loresina/RssReader/assets/118152597/7c3facbd-31e9-4064-ba05-c44a62aa9bc2
+
+
 
 ### Installation
 
